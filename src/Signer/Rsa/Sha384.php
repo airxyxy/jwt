@@ -1,18 +1,18 @@
 <?php
 /**
- * This file is part of Lcobucci\JWT, a simple library to handle JWT and JWS
+ * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
  *
  * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
  */
 
-namespace Lcobucci\JWT\Signer\Rsa;
+namespace Airxyxy\JWT\Signer\Rsa;
 
-use Lcobucci\JWT\Signer\Rsa;
+use Airxyxy\JWT\Signer\Rsa;
 
 /**
  * Signer for RSA SHA-384
  *
- * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
+ * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
  * @since 2.1.0
  */
 class Sha384 extends Rsa

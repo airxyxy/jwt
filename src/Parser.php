@@ -1,22 +1,22 @@
 <?php
 /**
- * This file is part of Lcobucci\JWT, a simple library to handle JWT and JWS
+ * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
  *
  * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
  */
 
-namespace Lcobucci\JWT;
+namespace Airxyxy\JWT;
 
 use InvalidArgumentException;
-use Lcobucci\JWT\Claim\Factory as ClaimFactory;
-use Lcobucci\JWT\Parsing\Decoder;
-use Lcobucci\JWT\Parsing\Encoder;
-use Lcobucci\JWT\Signer\Factory as SignerFactory;
+use Airxyxy\JWT\Claim\Factory as ClaimFactory;
+use Airxyxy\JWT\Parsing\Decoder;
+use Airxyxy\JWT\Parsing\Encoder;
+use Airxyxy\JWT\Signer\Factory as SignerFactory;
 
 /**
  * This class parses the JWT strings and convert them into tokens
  *
- * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
+ * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
  * @since 0.1.0
  */
 class Parser

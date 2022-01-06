@@ -1,28 +1,28 @@
 <?php
 /**
- * This file is part of Lcobucci\JWT, a simple library to handle JWT and JWS
+ * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
  *
  * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
  */
 
-namespace Lcobucci\JWT\Signer;
+namespace Airxyxy\JWT\Signer;
 
 use InvalidArgumentException;
-use Lcobucci\JWT\Signer;
-use Lcobucci\JWT\Signer\Ecdsa\Sha256 as EcdsaSha256;
-use Lcobucci\JWT\Signer\Ecdsa\Sha384 as EcdsaSha384;
-use Lcobucci\JWT\Signer\Ecdsa\Sha512 as EcdsaSha512;
-use Lcobucci\JWT\Signer\Hmac\Sha256 as HmacSha256;
-use Lcobucci\JWT\Signer\Hmac\Sha384 as HmacSha384;
-use Lcobucci\JWT\Signer\Hmac\Sha512 as HmacSha512;
-use Lcobucci\JWT\Signer\Rsa\Sha256 as RsaSha256;
-use Lcobucci\JWT\Signer\Rsa\Sha384 as RsaSha384;
-use Lcobucci\JWT\Signer\Rsa\Sha512 as RsaSha512;
+use Airxyxy\JWT\Signer;
+use Airxyxy\JWT\Signer\Ecdsa\Sha256 as EcdsaSha256;
+use Airxyxy\JWT\Signer\Ecdsa\Sha384 as EcdsaSha384;
+use Airxyxy\JWT\Signer\Ecdsa\Sha512 as EcdsaSha512;
+use Airxyxy\JWT\Signer\Hmac\Sha256 as HmacSha256;
+use Airxyxy\JWT\Signer\Hmac\Sha384 as HmacSha384;
+use Airxyxy\JWT\Signer\Hmac\Sha512 as HmacSha512;
+use Airxyxy\JWT\Signer\Rsa\Sha256 as RsaSha256;
+use Airxyxy\JWT\Signer\Rsa\Sha384 as RsaSha384;
+use Airxyxy\JWT\Signer\Rsa\Sha512 as RsaSha512;
 
 /**
  * Factory that returns instance of signers
  *
- * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
+ * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
  * @since 0.1.0
  */
 class Factory

@@ -1,19 +1,19 @@
 <?php
 /**
- * This file is part of Lcobucci\JWT, a simple library to handle JWT and JWS
+ * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
  *
  * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
  */
 
-namespace Lcobucci\JWT\Signer;
+namespace Airxyxy\JWT\Signer;
 
-use Lcobucci\JWT\Signature;
-use Lcobucci\JWT\Signer;
+use Airxyxy\JWT\Signature;
+use Airxyxy\JWT\Signer;
 
 /**
  * Base class for signers
  *
- * @author Luís Otávio Cobucci Oblonczyk <lcobucci@gmail.com>
+ * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
  * @since 0.1.0
  */
 abstract class BaseSigner implements Signer
