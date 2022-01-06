@@ -1,216 +1,55 @@
 <?php
-/**
- * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
- *
- * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- */
+declare(strict_types=1);
 
 namespace Airxyxy\JWT;
 
-use BadMethodCallException;
-use Generator;
-use Airxyxy\JWT\Parsing\Encoder;
-use Airxyxy\JWT\Claim\Validatable;
-use OutOfBoundsException;
+use DateTimeInterface;
+use Airxyxy\JWT\Token\DataSet;
 
-/**
- * Basic structure of the JWT
- *
- * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
- * @since 0.1.0
- */
-class Token
+interface Token
 {
     /**
-     * The token header
-     *
-     * @var array
+     * Returns the token headers
      */
-    private $header;
+    public function headers(): DataSet;
 
     /**
-     * The token claim set
-     *
-     * @var array
+     * Returns if the token is allowed to be used by the audience
      */
-    private $claims;
+    public function isPermittedFor(string $audience): bool;
 
     /**
-     * The token signature
-     *
-     * @var Signature
+     * Returns if the token has the given id
      */
-    private $signature;
+    public function isIdentifiedBy(string $id): bool;
 
     /**
-     * The data encoder
-     *
-     * @var Encoder
+     * Returns if the token has the given subject
      */
-    private $encoder;
+    public function isRelatedTo(string $subject): bool;
 
     /**
-     * Initializes the object
-     *
-     * @param array $header
-     * @param array $claims
-     * @param Signature $signature
+     * Returns if the token was issued by any of given issuers
      */
-    public function __construct(
-        array $header = ['alg' => 'none'],
-        array $claims = [],
-        Signature $signature = null
-    ) {
-        $this->header = $header;
-        $this->claims = $claims;
-        $this->signature = $signature;
-    }
+    public function hasBeenIssuedBy(string ...$issuers): bool;
 
     /**
-     * Configures the data encoder
-     *
-     * @param Encoder $encoder
+     * Returns if the token was issued before of given time
      */
-    public function setEncoder(Encoder $encoder)
-    {
-        $this->encoder = $encoder;
-    }
+    public function hasBeenIssuedBefore(DateTimeInterface $now): bool;
 
     /**
-     * Returns the token header
-     *
-     * @return array
+     * Returns if the token minimum time is before than given time
      */
-    public function getHeader()
-    {
-        return $this->header;
-    }
+    public function isMinimumTimeBefore(DateTimeInterface $now): bool;
 
     /**
-     * Returns the token claim set
-     *
-     * @return array
+     * Returns if the token is expired
      */
-    public function getClaims()
-    {
-        return $this->claims;
-    }
-
-    /**
-     * Returns the value of a token claim
-     *
-     * @param string $name
-     *
-     * @return mixed
-     *
-     * @throws OutOfBoundsException
-     */
-    public function getClaim($name)
-    {
-        if (!isset($this->claims[$name])) {
-            throw new OutOfBoundsException('Requested claim is not configured');
-        }
-
-        return $this->claims[$name]->getValue();
-    }
-
-    /**
-     * Returns the token signature
-     *
-     * @return Signature
-     */
-    public function getSignature()
-    {
-        return $this->signature;
-    }
-
-    /**
-     * Verify if the key matches with the one that created the signature
-     *
-     * @param string $key
-     *
-     * @return boolean
-     *
-     * @throws BadMethodCallException When token is not signed
-     */
-    public function verify($key)
-    {
-        if ($this->signature === null) {
-            throw new BadMethodCallException('This token is not signed');
-        }
-
-        return $this->signature->verify($this->getPayload(), $key);
-    }
-
-    /**
-     * Validates if the token is valid
-     *
-     * @param ValidationData $data
-     *
-     * @return boolean
-     */
-    public function validate(ValidationData $data)
-    {
-        foreach ($this->getValidatableClaims() as $claim) {
-            if (!$claim->validate($data)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Yields the validatable claims
-     *
-     * @return Generator
-     */
-    private function getValidatableClaims()
-    {
-        foreach ($this->claims as $claim) {
-            if ($claim instanceof Validatable) {
-                yield $claim;
-            }
-        }
-    }
-
-    /**
-     * Returns the token payload
-     *
-     * @return string
-     *
-     * @throws BadMethodCallException When $this->encoder is not configured
-     */
-    public function getPayload()
-    {
-        if ($this->encoder === null) {
-            throw new BadMethodCallException('Encoder must be configured');
-        }
-
-        return sprintf(
-            '%s.%s',
-            $this->encoder->base64UrlEncode($this->encoder->jsonEncode($this->header)),
-            $this->encoder->base64UrlEncode($this->encoder->jsonEncode($this->claims))
-        );
-    }
+    public function isExpired(DateTimeInterface $now): bool;
 
     /**
      * Returns an encoded representation of the token
-     *
-     * @return string
      */
-    public function __toString()
-    {
-        try {
-            $data = $this->getPayload() . '.';
-
-            if ($this->signature) {
-                $data .= $this->encoder->base64UrlEncode($this->signature);
-            }
-
-            return $data;
-        } catch (BadMethodCallException $e) {
-            return '';
-        }
-    }
+    public function toString(): string;
 }

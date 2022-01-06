@@ -1,249 +1,77 @@
 <?php
-/**
- * This file is part of Airxyxy\JWT, a simple library to handle JWT and JWS
- *
- * @license http://opensource.org/licenses/BSD-3-Clause BSD-3-Clause
- */
+declare(strict_types=1);
 
 namespace Airxyxy\JWT;
 
-use BadMethodCallException;
-use Airxyxy\JWT\Claim\Factory as ClaimFactory;
-use Airxyxy\JWT\Parsing\Encoder;
+use DateTimeImmutable;
+use Airxyxy\JWT\Encoding\CannotEncodeContent;
+use Airxyxy\JWT\Signer\CannotSignPayload;
+use Airxyxy\JWT\Signer\Ecdsa\ConversionFailed;
+use Airxyxy\JWT\Signer\InvalidKeyProvided;
+use Airxyxy\JWT\Signer\Key;
+use Airxyxy\JWT\Token\Plain;
+use Airxyxy\JWT\Token\RegisteredClaimGiven;
 
-/**
- * This class makes easier the token creation process
- *
- * @author Luís Otávio Cobucci Oblonczyk <Airxyxy@gmail.com>
- * @since 0.1.0
- */
-class Builder
+interface Builder
 {
     /**
-     * The token header
-     *
-     * @var array
+     * Appends new items to audience
      */
-    private $header;
-
-    /**
-     * The token claim set
-     *
-     * @var array
-     */
-    private $claims;
-
-    /**
-     * The token signature
-     *
-     * @var Signature
-     */
-    private $signature;
-
-    /**
-     * The data encoder
-     *
-     * @var Encoder
-     */
-    private $encoder;
-
-    /**
-     * The factory of claims
-     *
-     * @var ClaimFactory
-     */
-    private $claimFactory;
-
-    /**
-     * Initializes a new builder
-     *
-     * @param Encoder $encoder
-     * @param ClaimFactory $claimFactory
-     */
-    public function __construct(
-        Encoder $encoder = null,
-        ClaimFactory $claimFactory = null
-    ) {
-        $this->encoder = $encoder ?: new Encoder();
-        $this->claimFactory = $claimFactory ?: new ClaimFactory();
-        $this->header = ['typ'=> 'JWT', 'alg' => 'none'];
-        $this->claims = [];
-    }
-
-    /**
-     * Configures the audience
-     *
-     * @param string $audience
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
-     */
-    public function setAudience($audience, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('aud', (string) $audience, $replicateAsHeader);
-    }
+    public function permittedFor(string ...$audiences): Builder;
 
     /**
      * Configures the expiration time
-     *
-     * @param int $expiration
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setExpiration($expiration, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('exp', (int) $expiration, $replicateAsHeader);
-    }
+    public function expiresAt(DateTimeImmutable $expiration): Builder;
 
     /**
      * Configures the token id
-     *
-     * @param string $id
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setId($id, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('jti', (string) $id, $replicateAsHeader);
-    }
+    public function identifiedBy(string $id): Builder;
 
     /**
      * Configures the time that the token was issued
-     *
-     * @param int $issuedAt
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setIssuedAt($issuedAt, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('iat', (int) $issuedAt, $replicateAsHeader);
-    }
+    public function issuedAt(DateTimeImmutable $issuedAt): Builder;
 
     /**
      * Configures the issuer
-     *
-     * @param string $issuer
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setIssuer($issuer, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('iss', (string) $issuer, $replicateAsHeader);
-    }
+    public function issuedBy(string $issuer): Builder;
 
     /**
      * Configures the time before which the token cannot be accepted
-     *
-     * @param int $notBefore
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setNotBefore($notBefore, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('nbf', (int) $notBefore, $replicateAsHeader);
-    }
+    public function canOnlyBeUsedAfter(DateTimeImmutable $notBefore): Builder;
 
     /**
      * Configures the subject
-     *
-     * @param string $subject
-     * @param boolean $replicateAsHeader
-     *
-     * @return Builder
      */
-    public function setSubject($subject, $replicateAsHeader = false)
-    {
-        return $this->setRegisteredClaim('sub', (string) $subject, $replicateAsHeader);
-    }
+    public function relatedTo(string $subject): Builder;
 
     /**
-     * Configures a registed claim
+     * Configures a header item
      *
-     * @param string $name
      * @param mixed $value
-     * @param boolean $replicate
-     *
-     * @return Builder
      */
-    protected function setRegisteredClaim($name, $value, $replicate)
-    {
-        $this->set($name, $value);
-
-        if ($replicate) {
-            $this->header[$name] = $this->claims[$name];
-        }
-
-        return $this;
-    }
+    public function withHeader(string $name, $value): Builder;
 
     /**
      * Configures a claim item
      *
-     * @param string $name
      * @param mixed $value
      *
-     * @return Builder
-     *
-     * @throws BadMethodCallException When data has been already signed
+     * @throws RegisteredClaimGiven When trying to set a registered claim.
      */
-    public function set($name, $value)
-    {
-        if ($this->signature) {
-            throw new BadMethodCallException('You must unsign before make changes');
-        }
-
-        $this->claims[(string) $name] = $this->claimFactory->create($name, $value);
-
-        return $this;
-    }
+    public function withClaim(string $name, $value): Builder;
 
     /**
-     * Signs the data
+     * Returns a signed token to be used
      *
-     * @param Signer $signer
-     * @param string $key
-     *
-     * @return Builder
+     * @throws CannotEncodeContent When data cannot be converted to JSON.
+     * @throws CannotSignPayload   When payload signing fails.
+     * @throws InvalidKeyProvided  When issue key is invalid/incompatible.
+     * @throws ConversionFailed    When signature could not be converted.
      */
-    public function sign(Signer $signer, $key)
-    {
-        $signer->modifyHeader($this->header);
-
-        $this->signature = $signer->sign(
-            $this->getToken()->getPayload(),
-            $key
-        );
-
-        return $this;
-    }
-
-    /**
-     * Removes the signature from the builder
-     *
-     * @return Builder
-     */
-    public function unsign()
-    {
-        $this->signature = null;
-
-        return $this;
-    }
-
-    /**
-     * Returns the resultant token
-     *
-     * @return Token
-     */
-    public function getToken()
-    {
-        $token = new Token($this->header, $this->claims, $this->signature);
-        $token->setEncoder($this->encoder);
-
-        return $token;
-    }
+    public function getToken(Signer $signer, Key $key): Plain;
 }
