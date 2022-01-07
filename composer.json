@@ -1,5 +1,21 @@
 {
     "name": "airxyxy/jwt",
+	"description": "基于lcobucci/jwt修改",
+    "license": [
+        "BSD-3-Clause"
+    ],
+    "type": "library",
+    "keywords": [
+        "JWT",
+        "JWS"
+    ],
+	"authors": [
+        {
+            "name": "Airxyxy",
+            "email": "807460184@qq.com",
+            "role": "Developer"
+        }
+    ],
     "require": {
         "php": "^7.4 || ^8.0",
         "ext-mbstring": "*",
@@ -21,7 +37,21 @@
     },
     "autoload": {
         "psr-4": {
-            "Airxyxy\\Jwt\\": "src"
+            "Airxyxy\\JWT\\": "src"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Airxyxy\\JWT\\": [
+                "test/_keys",
+                "test/unit",
+                "test/performance"
+            ],
+            "Airxyxy\\JWT\\FunctionalTests\\": "test/functional"
+        }
+    },
+	"config": {
+        "preferred-install": "dist",
+        "sort-packages": true
     }
 }
